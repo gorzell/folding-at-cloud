@@ -1,0 +1,78 @@
+#cloud-config
+
+apt:
+  preserve_sources_list: true
+
+  conf: | # APT config
+    APT {
+      Get {
+        Assume-Yes "true";
+        Fix-Broken "true";
+      };
+    };
+
+  sources:
+    # CUDA Driver Repo and Key
+    cuda.list:
+      source: "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64 /"
+      key: |
+       -----BEGIN PGP PUBLIC KEY BLOCK-----
+       Version: GnuPG v1
+
+       mQINBFdtt4UBEAC8FDSWMR07GJZ265giLn7kLF+EsJCWESUq6Cd13QN0JQ/tLibi
+       QlW4ZjeOnEH9VPlqh/mKqNMG4SwRt8S+GHpePMQrr0aOkiRGfCclnAWIZURSAP+t
+       PLelCt43fkw1BBTopd/0oOzO8kHu8j8WU4A8GHxqghfFWPv54FQs2iaZ2eWR7a6d
+       79IJrbDKaVCCiQrkhCM8m648pNKHhuoJ9cQXFV+uvwkpfmKWGQ4ultxlOyjLHJLF
+       vuML2RuAO9IxbdZjzeYNN+T+wjFIBVcPnwEO+WrYgvGkT4r9aqVqTeg3EPb7QclV
+       sKBVJdxk4jZl0y22HAWqScVi6SJ15uK9pXxywDZkbpuRBWx4ThWiGe/FiUa2igi9
+       /SIvqN2TBY0g18sRTrylVr1wE1UGa/y7nDx6PoGCP1frBt8YUYt3pkM8Xvb2CRxx
+       CyWwmuFEQHC6jCEWf7FnoBHBYQwTVGNrU0vkuIeDrm+ZAcv8wx+ie1hlFhqCCJnf
+       jqeQ0/zA9RPmCPOkLyTdSsNZtlxxk7bzCdTdFFKzBjGTR7Gz3SMSp23d11eIyRiF
+       HQsp2v0SvnPJ6OcgB95Hmo544vi3RuoVfovtDOdfSBCRxP+GhhxkKSrTleQjD0/r
+       CGkdG2Kox3m9YllAsvZchLXlS7bZV9mGRF61mVMjF3HJRUQfBBm89VPQ+QARAQAB
+       tCBjdWRhdG9vbHMgPGN1ZGF0b29sc0BudmlkaWEuY29tPokCNwQTAQgAIQUCV223
+       hQIbAwULCQgHAwUVCgkICwUWAgMBAAIeAQIXgAAKCRD2D0s9f6KvgNArEAChnfcW
+       rYItgt7xXXubT6E+KpJyJ0RPrXf51S2mhciFbjDl+3EXRMRjOutVmgWYPWUUZaKR
+       8Iez3Lz4BRmwYOWBLtdnOLbKoSsQUX95rnPFjfly/DFLfjKxz4NRBmh4r4/rCYWm
+       2hmnXmOAi8kV7fqx3g5XMpJ//N6+T8ctEol2iZ82GrXjadcRWE4rAe7UyuEzJ74y
+       6ZKIzk5ijdgEKtcaBhzEWvoV5Pr9nkn7ByGsdehKR/gNnjPMYXrklSHGfphJIsS2
+       S32lMk/kuRjihBcWcYBXIPEQ7CV+PNW2TlkZj/YqTg637sZHwkhcjcNzxeqKvRYG
+       8V7Ju5hTDxL1UQBmgDS3cRx1lw7tYRG5bS67tbC2dc/CpPkG5agiZ/WyoHQDnn4r
+       1fRuOFx694QR6+0rAP6171xEEoNAPaH7gdJdhWKiYiJD0T2EEbW7wBUi/EupeKRv
+       kR12R1jUa1mlpxNtWQxJ7qp98T9+DmkxI1XDmWx0/g4ryuicwLDSqoPgNcRNdSQb
+       b8YfTqrkqaDdYzwLr/n0YKW3cYIvIeisV0WxRjb6OP7oAlAtaAhImlIc//51qNO7
+       /WAud6qMtnhFoZayR/BzLKqnCioN5GYr9BAKskpPHe9cDKVS3fg+Qvc1sNJID+jf
+       k52PqyW24Qsr0A9+5zQyE4tH9dfv120gj9avmg==
+       =0nKc
+       -----END PGP PUBLIC KEY BLOCK-----
+
+package_update: true
+package_upgrade: true
+
+packages:
+  - build-essential
+  - cuda
+  - linux-headers-5.0.0-1032-azure
+  - opencl-dev
+  - wget
+
+write_files:
+  - content: |
+      <config>
+      <user value='gorzell'/>
+      <team value='240045'/>
+      <passkey value=''/>
+      <smp value='true'/>
+      <gpu value='true'/>
+      </config>
+    path: /etc/fahclient/config.xml
+
+runcmd:
+  - mkdir /run/folding
+  - [ wget, "https://download.foldingathome.org/releases/public/release/fahclient/debian-testing-64bit/v7.4/fahclient_7.4.4_amd64.deb", -O, /run/folding/fahclient_7.4.4_amd64.deb ]
+  - DEBIAN_FRONTEND=noninteractive apt-get install -y /run/folding/fahclient_7.4.4_amd64.deb
+
+# If you want to install any of the other Folding@Home tools on the host, you can use the lines below as a starting point.
+#  - [ wget, "https://download.foldingathome.org/releases/public/release/fahcontrol/debian-testing-64bit/v7.4/fahcontrol_7.4.4-1_all.deb", -O, /run/folding/fahcontrol_7.4.4-1_all.deb ]
+#  - [ wget, "https://download.foldingathome.org/releases/public/release/fahviewer/debian-testing-64bit/v7.4/fahviewer_7.4.4_amd64.deb", -O, /run/folding/fahviewer_7.4.4_amd64.deb ]
+#  - DEBIAN_FRONTEND=noninteractive apt-get install -y /run/folding/fahcontrol_7.4.4-1_all.deb
