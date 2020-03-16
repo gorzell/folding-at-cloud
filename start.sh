@@ -21,30 +21,41 @@ usage () {
 }
 
 RESOURCE_GROUP=foldingathome
-NAME=folder
 LOCATION=eastus
 USER=$(whoami)
 
-for arg in "$@"; do
-  case "$arg" in
+NAME=
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
     -g|--resource-group)
-      RESOURCE_GROUP=$arg
+      RESOURCE_GROUP=$2
+      shift 2
       ;;
     -h|--help)
       usage
       exit 2
       ;;
     -n|--name)
-      NAME=$arg
+      NAME=$2
+      shift 2
       ;;
     -r|--region)
-      LOCATION=$arg
+      LOCATION=$2
+      shift 2
       ;;
     *)
       echo "Unknown argument: $arg. Use -h or --help for details on available arguments." 1>&2
       exit 2
   esac
 done
+
+# Require the name flag.
+if [ -z "$NAME" ]; then
+  echo "You must set a name.\n" 1>&2
+  usage
+  exit 2
+fi
 
 az group create --name $RESOURCE_GROUP --location $LOCATION
 
