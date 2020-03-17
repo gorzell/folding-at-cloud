@@ -64,7 +64,7 @@ write_files:
       <passkey value=''/>
       <smp value='true'/>
       <gpu value='true'/>
-      <power v='full'/>
+      <power value='full'/>
       </config>
     path: /etc/fahclient/config.xml
 
