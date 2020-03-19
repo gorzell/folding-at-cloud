@@ -24,6 +24,7 @@ RESOURCE_GROUP=foldingathome
 LOCATION=eastus
 USER=$(whoami)
 
+SUFFIX=1
 NAME=
 
 while [ "$#" -gt 0 ]; do
@@ -40,6 +41,10 @@ while [ "$#" -gt 0 ]; do
       NAME=$2
       shift 2
       ;;
+    -s|--suffix)
+      SUFFIX=$2
+      shift 2
+      ;;
     -r|--region)
       LOCATION=$2
       shift 2
@@ -49,6 +54,8 @@ while [ "$#" -gt 0 ]; do
       exit 2
   esac
 done
+
+WORKER_NAME=$NAME-$SUFFIX
 
 # Require the name flag.
 if [ -z "$NAME" ]; then
@@ -68,8 +75,8 @@ az network vnet create \
 
 az network public-ip create \
     --resource-group $RESOURCE_GROUP \
-    --name $NAME-PublicIP \
-    --dns-name $NAME-publicdns
+    --name $WORKER_NAME-PublicIP \
+    --dns-name $WORKER_NAME-publicdns
 
 az network nsg create \
     --resource-group $RESOURCE_GROUP \
@@ -86,19 +93,19 @@ az network nsg rule create \
 
 az network nic create \
     --resource-group $RESOURCE_GROUP \
-    --name $NAME-Nic \
+    --name $WORKER_NAME-Nic \
     --vnet-name $NAME-Vnet \
     --subnet $NAME-Subnet \
-    --public-ip-address $NAME-PublicIP \
+    --public-ip-address $WORKER_NAME-PublicIP \
     --network-security-group $NAME-NetworkSecurityGroup
 
 #--size Standard_NC6_Promo \
 az vm create \
   --resource-group $RESOURCE_GROUP \
-  --name $NAME-vm \
+  --name $WORKER_NAME-vm \
   --size Standard_NC6_Promo \
   --image Canonical:UbuntuServer:18.04-LTS:latest \
   --custom-data cloud-init.yaml \
   --admin-username $USER \
   --generate-ssh-keys \
-  --nics $NAME-Nic
+  --nics $WORKER_NAME-Nic
