@@ -9,7 +9,7 @@
 #/ OPTIONS:
 #/   -h | --help    Show this message.
 #/   -g | --resource-group Azure resource group name. DEFAULT: foldingathome
-#/   -n | --name      Name for the VM.
+#/   -n | --name      Name for the VM (must be unique within the region).
 #/   -p | --public    Attach a public IP with port 22 open. DEFAULT: false
 #/   -r | --region    Azure region. DEFAULT: eastus
 #/
